@@ -1,0 +1,2 @@
+timestamp,latency_ms,uptime,status_code,ssl_valid,ssl_expires,ssl_days_remaining,dns_ms,search_ms,search_status_code,overall
+2026-07-29T01:55:40.917123+00:00,705.91,True,200,True,2026-09-15T13:10:47+00:00,48,0.54,1684.08,200,True

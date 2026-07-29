@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mithal.space monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 { margin-top: 0; }
+    .box {
+      background: #16213e;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+    .big { font-size: 32px; font-weight: bold; }
+    .ok { color: #4caf50; }
+    .bad { color: #f44336; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      border-bottom: 1px solid #333;
+      padding: 8px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>mithal.space — Monitoring</h1>
+  <p id="status">loading...</p>
+
+  <div class="box">
+    <div>Uptime (24h)</div>
+    <div class="big" id="uptime">-</div>
+  </div>
+
+  <div class="box">
+    <div>SSL (days left)</div>
+    <div class="big" id="ssl">-</div>
+    <div id="sslDate"></div>
+  </div>
+
+  <div class="box">
+    <div>Latency last hour</div>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="box">
+    <div>Last 10 checks</div>
+    <table>
+      <thead>
+        <tr>
+          <th>time</th>
+          <th>latency</th>
+          <th>dns</th>
+          <th>search</th>
+          <th>status</th>
+          <th>result</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let chart
+
+    function loadData() {
+      fetch('metrics.json')
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) return
+
+          const last = data[data.length - 1]
+          document.getElementById('status').textContent =
+            last.uptime ? 'site is UP' : 'site is DOWN'
+          document.getElementById('status').className = last.uptime ? 'ok' : 'bad'
+
+          const dayAgo = Date.now() - 24 * 60 * 60 * 1000
+          const dayData = data.filter(d => new Date(d.timestamp).getTime() > dayAgo)
+          const upCount = dayData.filter(d => d.uptime).length
+          const uptimePct = dayData.length ? (upCount / dayData.length * 100).toFixed(2) : 0
+          document.getElementById('uptime').textContent = uptimePct + '%'
+
+          document.getElementById('ssl').textContent =
+            last.ssl_days_remaining != null ? last.ssl_days_remaining + ' days' : 'n/a'
+          document.getElementById('sslDate').textContent =
+            last.ssl_expires ? 'expires: ' + last.ssl_expires : ''
+
+          const hourAgo = Date.now() - 60 * 60 * 1000
+          const hourData = data.filter(d => new Date(d.timestamp).getTime() > hourAgo)
+          const labels = hourData.map(d => d.timestamp.slice(11, 19))
+          const values = hourData.map(d => d.latency_ms)
+
+          if (!chart) {
+            chart = new Chart(document.getElementById('chart'), {
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: 'ms',
+                  data: values,
+                  borderColor: '#4fc3f7',
+                  tension: 0.2
+                }]
+              }
+            })
+          } else {
+            chart.data.labels = labels
+            chart.data.datasets[0].data = values
+            chart.update()
+          }
+
+          const last10 = data.slice(-10).reverse()
+          document.getElementById('rows').innerHTML = last10.map(d => `
+            <tr>
+              <td>${d.timestamp.replace('T', ' ').replace('Z', '')}</td>
+              <td>${d.latency_ms} ms</td>
+              <td>${d.dns_ms} ms</td>
+              <td>${d.search_ms} ms</td>
+              <td>${d.status_code}</td>
+              <td class="${d.overall ? 'ok' : 'bad'}">${d.overall ? 'ok' : 'fail'}</td>
+            </tr>
+          `).join('')
+        })
+        .catch(() => {
+          document.getElementById('status').textContent = 'cannot load metrics.json'
+          document.getElementById('status').className = 'bad'
+        })
+    }
+
+    loadData()
+    setInterval(loadData, 30000)
+  </script>
+</body>
+</html>
