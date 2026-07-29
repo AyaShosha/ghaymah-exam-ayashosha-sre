@@ -5,7 +5,7 @@ import time
 
 while True:
     try:
-     with urlopen('https://my-application-2f85feb054d8.hosted.ghaymah.systems/health') as response:
+     with urlopen('https://node-app-75fbd9c11652.hosted.ghaymah.systems/health') as response:
         print(f"Status Code: {response.status}")
 
     except HTTPError as error:
