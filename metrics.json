@@ -1,0 +1,15 @@
+[
+  {
+    "timestamp": "2026-07-29T02:06:33.694428Z",
+    "latency_ms": 486.49,
+    "uptime": true,
+    "status_code": 200,
+    "dns_ms": 0.48,
+    "ssl_valid": false,
+    "ssl_expires": "Sep 15 13:10:47 2026 GMT",
+    "ssl_days_remaining": null,
+    "search_ms": 473.48,
+    "search_status_code": 200,
+    "overall": false
+  }
+]

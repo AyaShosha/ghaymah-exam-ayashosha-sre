@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Dashboard</title>
+  <link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header">
+      <div>
+        <h1>Server Dashboard</h1>
+        <p class="subtitle">Live monitoring for your Node.js application</p>
+      </div>
+      <div class="status-badge" id="statusBadge">
+        <span class="status-dot"></span>
+        <span id="statusText">Checking...</span>
+      </div>
+    </header>
+
+    <main class="cards">
+      <section class="card">
+        <p class="card-label">Total Requests</p>
+        <p class="card-value" id="requestCount">—</p>
+        <p class="card-hint">All requests received by the server</p>
+      </section>
+
+      <section class="card">
+        <p class="card-label">Average Response Time</p>
+        <p class="card-value" id="averageTime">—</p>
+        <p class="card-hint">Mean duration in seconds</p>
+      </section>
+
+      <section class="card">
+        <p class="card-label">Application Status</p>
+        <p class="card-value status-value" id="appStatus">—</p>
+        <p class="card-hint">Based on health check</p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span id="lastUpdated">Last updated: —</span>
+      <span>Auto-refresh every 5 seconds</span>
+    </footer>
+  </div>
+
+  <script src="/dashboard/dashboard.js"></script>
+</body>
+</html>
